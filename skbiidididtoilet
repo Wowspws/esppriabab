@@ -1,0 +1,62 @@
+local function createESP(player)
+    -- Wait for the player's character to load
+    local character = player.Character or player.CharacterAdded:Wait()
+    
+    -- Iterate through all parts in the character
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") then
+            -- Create a BoxHandleAdornment to highlight the part
+            local espBox = Instance.new("BoxHandleAdornment")
+            espBox.Name = "ESPBox"
+            espBox.Adornee = part
+            espBox.Size = part.Size
+            espBox.Color3 = Color3.new(1, 0, 0) -- Red color
+            espBox.Transparency = 0.7
+            espBox.ZIndex = 0
+            espBox.AlwaysOnTop = true
+            espBox.Parent = part
+        end
+    end
+    
+    -- Create a BillboardGui for the player's name
+    local espGui = Instance.new("BillboardGui")
+    espGui.Name = "ESP"
+    espGui.AlwaysOnTop = true
+    espGui.Size = UDim2.new(0, 200, 0, 50)
+    espGui.StudsOffset = Vector3.new(0, 3, 0)
+    espGui.Adornee = character:WaitForChild("HumanoidRootPart")
+
+    -- Create the TextLabel for the player's name
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Parent = espGui
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = player.Name
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.Font = Enum.Font.SourceSans
+    nameLabel.TextSize = 14
+    nameLabel.TextStrokeTransparency = 0.5
+    espGui.Parent = character:WaitForChild("HumanoidRootPart")
+end
+
+local function onCharacterAdded(character)
+    local player = game.Players:GetPlayerFromCharacter(character)
+    if player then
+        createESP(player)
+    end
+end
+
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(onCharacterAdded)
+    if player.Character then
+        createESP(player)
+    end
+end
+
+-- Connect the PlayerAdded event to create ESP for new players
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+
+-- Create ESP for players that are already in the game
+for _, player in pairs(game.Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
